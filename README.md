@@ -1,8 +1,3 @@
-```
-Team Number: 010-29
-Team members names: Cole Hansen, Tim Orlov, Ketim Lamessa, Alex Monteil
-Team members x500s: hans8136, orlov021, lames005, monte427
-```
 # Project Description:
 
 The project is a web based 3D simulation. Its map represents the campus of the University of Minnesota Twin Cities in Minneapolis, MN. The simulation involves the following entities: helicopters, humans, robots, drones, packages and porch pirates.
