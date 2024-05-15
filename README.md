@@ -10,7 +10,7 @@ The major features involve robots, drones, packages and porch pirates. The simul
 
 ## To run locally:
 
-Clone the project from github: `git clone https://github.umn.edu/umn-csci-3081-s24/team-010-29-finalproject.git`
+Clone the project from github: `git clone https://github.com/orlovt/delivery-simulation.git`
 
 In a unix terminal run the command: `make -j`
 
