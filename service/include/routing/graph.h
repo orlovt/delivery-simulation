@@ -1,45 +1,36 @@
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
-#include <iostream>
-#include <string>
+#include <optional>
 #include <vector>
-#include <cmath>
-#include "routing_strategy.h"
-#include "distance_function.h"
-#include "bounding_box.h"
+
+#include "RoutingStrategy.h"
+#include "vector3.h"
 
 namespace routing {
 
-class IGraphNode;
-class RoutingStrategy;
+class GraphNode {
+ private:
+  int id;
+  Vector3 position;
 
-class IGraph {
-public:
-	virtual ~IGraph() {}
-	virtual const IGraphNode* GetNode(const std::string& name) const = 0;
-	virtual const std::vector<IGraphNode*>& GetNodes() const = 0;
-	virtual BoundingBox GetBoundingBox() const = 0;
-	virtual const IGraphNode* NearestNode(std::vector<float> point, const DistanceFunction& distance) const = 0;
-	virtual const std::vector< std::vector<float> > GetPath(std::vector<float> src, std::vector<float> dest, const RoutingStrategy& strategy) const = 0;
+ public:
+  GraphNode(int, const Vector3&);
+  int getID() const { return id; }
+  Vector3 getPosition() const { return position; }
 };
 
-class IGraphNode {
-public:
-	virtual ~IGraphNode() {}
-	virtual const std::string& GetName() const = 0;
-	virtual const std::vector<IGraphNode*>& GetNeighbors() const = 0;
-	virtual const std::vector<float> GetPosition() const = 0;
+class Graph {
+ public:
+  std::vector<std::vector<int>> adjacencyList;
+  std::vector<GraphNode> nodes;
+  Graph() {}
+  void addNode(const Vector3&);
+  void addEdge(int, int);
+  int nearestNode(const Vector3&) const;
+  std::optional<std::vector<Vector3>> getPath(const Vector3&, const Vector3&,
+                                              const RoutingStrategy&) const;
 };
+}  // namespace routing
 
-class GraphBase : public IGraph {
-public:
-	virtual ~GraphBase() {}
-	BoundingBox GetBoundingBox() const;
-	const IGraphNode* NearestNode(std::vector<float> point, const DistanceFunction& distance) const;
-	const std::vector< std::vector<float> > GetPath(std::vector<float> src, std::vector<float> dest, const RoutingStrategy& strategy) const;
-};
-
-}
-
-#endif
+#endif  // GRAPH_H_

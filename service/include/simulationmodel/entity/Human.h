@@ -1,38 +1,38 @@
-#include "IEntity.h"
-#include "math/vector3.h"
-#include "util/json.h"
+#ifndef HUMAN_H_
+#define HUMAN_H_
 
-#ifndef HUMAN_H
-#define HUMAN_H
+#include "IEntity.h"
+#include "IStrategy.h"
 
 class Human : public IEntity {
  public:
-   /**
-   * @brief Constructor
-   * @param obj JSON object containing the Human's information
+  /**
+   * @brief Drones are created with a name
+   * @param obj JSON object containing the drone's information
    */
-  Human(const JsonObject& details);
+  Human(const JsonObject& obj);
 
   /**
-   * @brief Updates the Human's position
+   * @brief Default destructor
+   */
+  ~Human();
+
+  /**
+   * @brief Updates the human's position
    * @param dt Delta time
    */
   void update(double dt);
 
   /**
-   * @brief Removing the copy constructor operator
-   * so that drones cannot be copied.
+   * @brief provides a csv representation of the human
+   * @return std::string representing the attributes of the human in csv format
    */
-  Human(const Human& drone) = delete;
-
-  /**
-   * @brief Removing the assignment operator
-   * so that drones cannot be copied.
-   */
-  Human& operator=(const Human& drone) = delete;
+  std::string tocsv() const;
 
  private:
-    bool b_targetDestination = false;
+  static Vector3 kellerPosition;
+  IStrategy* movement = nullptr;
+  bool atKeller = false;
 };
 
-#endif  // HUMAN_H
+#endif

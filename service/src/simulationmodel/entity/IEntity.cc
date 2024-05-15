@@ -23,49 +23,27 @@ IEntity::IEntity(const JsonObject& details) : IEntity() {
 
 IEntity::~IEntity() {}
 
-void IEntity::linkModel(SimulationModel* model) {
-  this->model = model;
-}
+void IEntity::linkModel(SimulationModel* model) { this->model = model; }
 
-int IEntity::getId() const {
-  return id;
-}
+int IEntity::getId() const { return id; }
 
-Vector3 IEntity::getPosition() const {
-  return position;
-}
+Vector3 IEntity::getPosition() const { return position; }
 
-Vector3 IEntity::getDirection() const {
-  return direction;
-}
+Vector3 IEntity::getDirection() const { return direction; }
 
-const JsonObject& IEntity::getDetails() const {
-  return details;
-}
+const JsonObject& IEntity::getDetails() const { return details; }
 
-std::string IEntity::getColor() const {
-  return color;
-}
+std::string IEntity::getColor() const { return color; }
 
-std::string IEntity::getName() const {
-  return name;
-}
+std::string IEntity::getName() const { return name; }
 
-double IEntity::getSpeed() const {
-  return speed;
-}
+double IEntity::getSpeed() const { return speed; }
 
-void IEntity::setPosition(Vector3 pos_) {
-  position = pos_;
-}
+void IEntity::setPosition(Vector3 pos_) { position = pos_; }
 
-void IEntity::setDirection(Vector3 dir_) {
-  direction = dir_;
-}
+void IEntity::setDirection(Vector3 dir_) { direction = dir_; }
 
-void IEntity::setColor(std::string col_) {
-  color = col_;
-}
+void IEntity::setColor(std::string col_) { color = col_; }
 
 void IEntity::rotate(double angle) {
   Vector3 dirTmp = direction;

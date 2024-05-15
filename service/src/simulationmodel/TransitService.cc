@@ -1,9 +1,9 @@
 #include <chrono>  // NOLINT [build/c++11]
 #include <map>
 
+#include "OBJParser.h"
 #include "SimulationModel.h"
 #include "WebServer.h"
-#include "routing_api.h"
 
 //--------------------  Controller ----------------------------
 bool stopped = false;
@@ -22,7 +22,7 @@ class TransitService : public JsonSession, public IController {
       model.createEntity(data);
     } else if (cmd == "SetGraph") {
       std::string path = data["filePath"];
-      model.setGraph(routing::RoutingAPI().LoadFromFile(path));
+      model.setGraph(routing::OBJGraphParser(path));
     } else if (cmd == "ScheduleTrip") {
       model.scheduleTrip(data);
     } else if (cmd == "ping") {
@@ -55,6 +55,7 @@ class TransitService : public JsonSession, public IController {
     } else if (cmd == "stopSimulation") {
       std::cout << "Stop command administered\n";
       stopped = true;
+      model.stop();
     }
   }
 

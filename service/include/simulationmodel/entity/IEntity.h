@@ -1,9 +1,12 @@
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
+#include <sstream>
 #include <vector>
 
-#include "graph.h"
+#include "Graph.h"
+#include "IPublisher.h"
+#include "LogLevel.h"
 #include "math/vector3.h"
 #include "util/json.h"
 
@@ -18,7 +21,7 @@ class SimulationModel;
  * in the physical system. Subclasses of IEntity can override the `Update`
  * function to implement their own movement behavior.
  */
-class IEntity {
+class IEntity : public IPublisher {
  public:
   /**
    * @brief Constructor that assigns a unique ID to the entity.
@@ -27,7 +30,7 @@ class IEntity {
 
   /**
    * @brief Constructor with JsonObject details to define the entity
-  */
+   */
   IEntity(const JsonObject& details);
 
   /**
@@ -108,6 +111,12 @@ class IEntity {
    * @param angle The angle to rotate the entity by.
    */
   virtual void rotate(double angle);
+
+  /**
+   * @brief provides a csv representation of the entity
+   * @return std::string representing the attributes of the entity in csv format
+   */
+  virtual std::string tocsv() const = 0;
 
   /**
    * @brief Updates the entity's position in the physical system.

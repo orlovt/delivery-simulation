@@ -4,7 +4,7 @@
 # This Makefile is responsible for compiling all the back end code for the project
 
 CXX = g++
-CXXFLAGS = -std=c++17 -g -Wl,-rpath,$(DEP_DIR)/lib
+CXXFLAGS = -std=c++23 -g -Wl,-rpath,$(DEP_DIR)/lib
 ROOT_DIR = ..
 DEP_DIR = $(ROOT_DIR)/dependencies
 LIBDIRS = -L$(DEP_DIR)/lib

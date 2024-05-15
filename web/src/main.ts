@@ -12,11 +12,14 @@ import {
 import { loadScene } from "./sceneLoader";
 import { initScheduler } from "./tripScheduler";
 import { notify } from "./notifications";
+import { randFloat, randInt } from "three/src/math/MathUtils.js";
 
 const container = $("#scene-container")[0];
 const simSpeedSlider = $("#sim-speed");
 const stopSimulationButton = $("#stop-simulation")[0];
 const addHumanButton = $("#add-human")[0];
+const addDroneButton = $("#add-drone")[0];
+const addPirateButton = $("#add-porchpirate")[0];
 const deliveryPopup = $("#delivery-popup");
 
 const sceneFile = "scenes/umn.json";
@@ -52,6 +55,49 @@ addHumanButton.onclick = () => {
     offset: [0, -0.5, 0],
   });
   humanID += 1;
+};
+
+let droneID = 1;
+let droneColors = ["red", "blue", "green", "orange", "black"];
+addDroneButton.onclick = () => {
+  var position = [498.292, 270, -228.623];
+  position[0] += randFloat(-10, 10);
+  position[2] += randFloat(-10, 10);
+  sendCommand("CreateEntity", {
+    type: "drone",
+    name: "drone-" + droneID,
+    mesh: "assets/model/drone.glb",
+    position: position,
+    scale: [0.1, 0.1, 0.1],
+    rotation: [0, 0, 0, 0],
+    direction: [1, 0, 0],
+    speed: 30.0,
+    radius: 1.0,
+    start: 2.0,
+    duration: 2.0,
+    offset: [0, 0.6, 0],
+    color: droneColors[randInt(0, droneColors.length - 1)],
+  });
+  droneID += 1;
+};
+
+let porchpirateID = 1;
+addPirateButton.onclick = () => {
+  sendCommand("CreateEntity", {
+    type: "porchpirate",
+    name: "PorchPirate-" + porchpirateID,
+    mesh: "assets/model/porchpirate.glb",
+    position: [700, 290, 400],
+    scale: [1.0, 1.0, 1.0],
+    rotation: [0, 0, 0, 0],
+    direction: [1, 0, 0],
+    speed: 10.0,
+    radius: 1.0,
+    start: 2.0,
+    duration: 2.0,
+    offset: [0, -0.5, 0],
+  });
+  porchpirateID += 1;
 };
 
 window.onresize = () => {

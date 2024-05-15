@@ -1,13 +1,36 @@
 #include "SimulationModel.h"
 
-#include "Robot.h"
-#include "Drone.h"
-#include "Package.h"
-#include "Helicopter.h"
-#include "Human.h"
+#include "DroneFactory.h"
+#include "DroneLogger.h"
+#include "HelicopterFactory.h"
+#include "HumanFactory.h"
+#include "PackageFactory.h"
+#include "PackageLogger.h"
+#include "PorchPirateFactory.h"
+#include "RobotFactory.h"
+
+const char drone_csv_filename[] = "drone_log.csv";
+const char drone_csv_fileheader[] =
+    "LogLevel,Timestamp,Id,Position X,Position Y,Position Z,Direction "
+    "X,Direction Y,Direction Z,Speed,Available,PickedUp,StrategyType,PackageId";
+const char package_csv_filename[] = "package_log.csv";
+const char package_csv_fileheader[] =
+    "LogLevel,Timestamp,Id,Position X,Position Y,Position Z,Direction "
+    "X,Direction Y,Direction Z,Speed,Destination X,Destination Y,Destination "
+    "Z,RequiresDelivery,StrategyName"
+    "IsDelivered, IsReceived, IsStolen";
 
 SimulationModel::SimulationModel(IController& controller)
     : controller(controller) {
+  entityFactory.addFactory(new DroneFactory());
+  entityFactory.addFactory(new PackageFactory());
+  entityFactory.addFactory(new RobotFactory());
+  entityFactory.addFactory(new HumanFactory());
+  entityFactory.addFactory(new HelicopterFactory());
+  entityFactory.addFactory(new PorchPirateFactory());
+  logger->addLogger(new DroneLogger(drone_csv_filename, drone_csv_fileheader));
+  logger->addLogger(
+      new PackageLogger(package_csv_filename, package_csv_fileheader));
 }
 
 SimulationModel::~SimulationModel() {
@@ -19,40 +42,26 @@ SimulationModel::~SimulationModel() {
 }
 
 IEntity* SimulationModel::createEntity(const JsonObject& entity) {
-  std::string type = entity["type"];
   std::string name = entity["name"];
   JsonArray position = entity["position"];
   std::cout << name << ": " << position << std::endl;
 
   IEntity* myNewEntity = nullptr;
-
-  if (type == "package") {
-    myNewEntity = new Package(entity);
-  } else if (type == "drone") {
-    myNewEntity = new Drone(entity);
-  } else if (type == "robot") {
-    myNewEntity = new Robot(entity);
-  } else if (type == "helicopter") {
-    myNewEntity = new Helicopter(entity);
-  } else if (type == "human") {
-    myNewEntity = new Human(entity);
-  } else {
-    std::cout << "[!] Error: Unsupported entity type: " << type << std::endl;
-    return nullptr;
-  }
-
-  if (myNewEntity) {
+  if (myNewEntity = entityFactory.createEntity(entity)) {
+    // Call AddEntity to add it to the view
     myNewEntity->linkModel(this);
-    entities[myNewEntity->getId()] = myNewEntity;
     controller.addEntity(*myNewEntity);
+    entities[myNewEntity->getId()] = myNewEntity;
+    // Add the simulation model as a observer to myNewEntity
+    myNewEntity->addObserver(this);
+  } else {
+    std::cout << "Failed to create entity of type: " << entity["type"]
+              << std::endl;
   }
-
   return myNewEntity;
 }
 
-void SimulationModel::removeEntity(int id) {
-  removed.insert(id);
-}
+void SimulationModel::removeEntity(int id) { removed.insert(id); }
 
 /// Schedules a Delivery for an object in the scene
 void SimulationModel::scheduleTrip(const JsonObject& details) {
@@ -66,7 +75,7 @@ void SimulationModel::scheduleTrip(const JsonObject& details) {
   for (auto& [id, entity] : entities) {
     if (name == entity->getName()) {
       if (Robot* r = dynamic_cast<Robot*>(entity)) {
-        if  (r->requestedDelivery) {
+        if (r->requestedDelivery) {
           receiver = r;
           break;
         }
@@ -79,7 +88,7 @@ void SimulationModel::scheduleTrip(const JsonObject& details) {
   for (auto& [id, entity] : entities) {
     if (name + "_package" == entity->getName()) {
       if (Package* p = dynamic_cast<Package*>(entity)) {
-        if  (p->requiresDelivery) {
+        if (p->requiresDelivery()) {
           package = p;
           break;
         }
@@ -88,6 +97,15 @@ void SimulationModel::scheduleTrip(const JsonObject& details) {
   }
 
   if (receiver && package) {
+    // Add receiver observer
+    package->addPackageObserver(receiver);
+    // Add porch pirate observers
+    for (auto& [id, entity] : entities) {
+      if (PorchPirate* pirate = dynamic_cast<PorchPirate*>(entity)) {
+        package->addPackageObserver(pirate);
+      }
+    }
+    // Start delivery
     package->initDelivery(receiver);
     std::string strategyName = details["search"];
     package->setStrategyName(strategyName);
@@ -96,11 +114,9 @@ void SimulationModel::scheduleTrip(const JsonObject& details) {
   }
 }
 
-const routing::IGraph* SimulationModel::getGraph() const {
-  return graph;
-}
+const routing::Graph* SimulationModel::getGraph() const { return graph; }
 
-void SimulationModel::setGraph(const routing::IGraph* graph) {
+void SimulationModel::setGraph(const routing::Graph* graph) {
   if (this->graph) delete this->graph;
   this->graph = graph;
 }
@@ -117,11 +133,13 @@ void SimulationModel::update(double dt) {
   removed.clear();
 }
 
+void SimulationModel::stop(void) {}
+
 void SimulationModel::removeFromSim(int id) {
   IEntity* entity = entities[id];
   if (entity) {
-    for (auto i = scheduledDeliveries.begin();
-      i != scheduledDeliveries.end(); ++i) {
+    for (auto i = scheduledDeliveries.begin(); i != scheduledDeliveries.end();
+         ++i) {
       if (*i == entity) {
         scheduledDeliveries.erase(i);
         break;
@@ -131,4 +149,10 @@ void SimulationModel::removeFromSim(int id) {
     entities.erase(id);
     delete entity;
   }
+}
+
+void SimulationModel::notify(const std::string& message) const {
+  JsonObject details;
+  details["message"] = message;
+  this->controller.sendEventToView("Notification", details);
 }

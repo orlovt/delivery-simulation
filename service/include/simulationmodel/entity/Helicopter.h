@@ -1,39 +1,40 @@
-#include "IEntity.h"
-#include "math/vector3.h"
-#include "util/json.h"
+#ifndef Helicopter_H_
+#define Helicopter_H_
 
-#ifndef HELICOPTER_H
-#define HELICOPTER_H
+#include "IEntity.h"
+#include "IStrategy.h"
 
 class Helicopter : public IEntity {
  public:
-   /**
-   * @brief Constructor
-   * @param obj JSON object containing the Helicopter's information
+  /**
+   * @brief Helicopter are created with a name
+   * @param obj JSON object containing the drone's information
    */
-  Helicopter(const JsonObject& details);
+  Helicopter(const JsonObject& obj);
 
   /**
-   * @brief Updates the Helicopter's position
+   * @brief Default destructor
+   */
+  ~Helicopter();
+
+  /**
+   * @brief Updates the helicopter's position
    * @param dt Delta time
    */
   void update(double dt);
 
   /**
-   * @brief Removing the copy constructor operator
-   * so that drones cannot be copied.
+   * @brief provides a csv representation of the helicopter
+   * @return std::string representing the attributes of the helicopter in csv
+   * format
    */
-  Helicopter(const Helicopter& drone) = delete;
-
-  /**
-   * @brief Removing the assignment operator
-   * so that drones cannot be copied.
-   */
-  Helicopter& operator=(const Helicopter& drone) = delete;
+  std::string tocsv() const;
 
  private:
-  Vector3 destination;
-  void generateNewDestination();
+  IStrategy* movement = nullptr;
+  double distanceTraveled = 0;
+  unsigned int mileCounter = 0;
+  Vector3 lastPosition;
 };
 
 #endif

@@ -140,7 +140,7 @@ int callback_web_server(struct lws *wsi, enum lws_callback_reasons reason,
       break;
     }
     case LWS_CALLBACK_RECEIVE: {
-      std::string data(reinterpret_cast<char*>(in), len);
+      std::string data(reinterpret_cast<char *>(in), len);
       pss->state->inMessages.push_back(data);
       break;
     }
@@ -251,7 +251,7 @@ WebServerBase::WebServerBase(int port, const std::string &webDir)
     : webDir(webDir) {
   struct lws_context_creation_info info;
 
-  memset(&info, 0, sizeof info);
+  memset(&info, 0, sizeof(info));
 
   info.port = port;
   info.iface = NULL;
@@ -274,14 +274,14 @@ WebServerBase::WebServerBase(int port, const std::string &webDir)
 
   context = lws_create_context(&info);
 
-  if (context == NULL) {
+  if (context == nullptr) {
     std::cout << "libwebsocket init failed\n" << std::endl;
   }
 
   std::cout << "starting server..." << std::endl;
 }
 
-WebServerBase::~WebServerBase() {}
+WebServerBase::~WebServerBase() { lws_context_destroy(context); }
 
 void WebServerBase::createSession(void *info) {
   struct web_server_per_session_data_input *pss =

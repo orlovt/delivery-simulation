@@ -15,6 +15,10 @@ class Vector3 {
    * @brief Default constructor.
    */
   Vector3();
+  /**
+   * @brief Parameter constructor.
+   * @param a
+   */
   Vector3(double a);
   /**
    * @brief Parameter constructor.
@@ -24,8 +28,17 @@ class Vector3 {
    * @param[in] c z-coordinate
    */
   Vector3(double a, double b, double c);
+  /**
+   * @brief Parameter constructor.
+   * @param v vector of double coordinates
+   */
   Vector3(const std::vector<double>& v);
+  /**
+   * @brief Construct a new Vector 3 object
+   * @param v vector of float coordinates
+   */
   Vector3(const std::vector<float>& v);
+
   bool operator==(const Vector3& v) const;
   double& operator[](int i);
   double operator[](int i) const;
@@ -62,12 +75,9 @@ class Vector3 {
   // return std::vector version of this Vector3
   // template function should be defined in same file
   // with template keyword
-  template<class T> std::vector<T> vec() const {
-    return {
-      static_cast<T>(x),
-      static_cast<T>(y),
-      static_cast<T>(z)
-    };
+  template <class T>
+  std::vector<T> vec() const {
+    return {static_cast<T>(x), static_cast<T>(y), static_cast<T>(z)};
   }
   Vector3 cross(const Vector3& v) const;
   double magnitude() const;

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "IEntity.h"
+#include "IStrategy.h"
 #include "math/vector3.h"
 
 class Package;
@@ -29,7 +30,6 @@ class Drone : public IEntity {
    */
   ~Drone();
 
-
   /**
    * @brief Gets the next delivery in the scheduler
    */
@@ -40,6 +40,12 @@ class Drone : public IEntity {
    * @param dt Delta time
    */
   void update(double dt);
+
+  /**
+   * @brief provides a csv representation of the drone
+   * @return std::string representing the attributes of the drone in csv format
+   */
+  std::string tocsv() const;
 
   /**
    * @brief Removing the copy constructor operator
@@ -57,6 +63,8 @@ class Drone : public IEntity {
   bool available = false;
   bool pickedUp = false;
   Package* package = nullptr;
+  IStrategy* toPackage = nullptr;
+  IStrategy* toFinalDestination = nullptr;
 };
 
 #endif

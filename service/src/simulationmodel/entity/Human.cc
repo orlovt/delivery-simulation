@@ -1,20 +1,45 @@
-
+#define _USE_MATH_DEFINES
 #include "Human.h"
 
-Human::Human(const JsonObject& details) : IEntity(details) {}
+#include <cmath>
+#include <limits>
+
+#include "AstarStrategy.h"
+#include "SimulationModel.h"
+
+Vector3 Human::kellerPosition(64.0, 254.0, -210.0);
+
+Human::Human(const JsonObject& obj) : IEntity(obj) {}
+
+Human::~Human() {
+  if (movement) delete movement;
+}
 
 void Human::update(double dt) {
-  Vector3 destination1(146, 265, -121);
-  Vector3 destination2(-191, 265, -112);
-  Vector3* d;
-  if (b_targetDestination) {
-    d = &destination2;
+  if (movement && !movement->isCompleted()) {
+    movement->move(this, dt);
+    bool nearKeller = this->position.dist(Human::kellerPosition) < 85;
+    if (nearKeller && !this->atKeller) {
+      std::string message = this->getName() + " visited Keller hall";
+      notifyObservers(message);
+    }
+    atKeller = nearKeller;
   } else {
-    d = &destination1;
+    if (movement) delete movement;
+    Vector3 dest;
+    dest.x = ((static_cast<double>(rand())) / RAND_MAX) * (2900) - 1400;
+    dest.y = position.y;
+    dest.z = ((static_cast<double>(rand())) / RAND_MAX) * (1600) - 800;
+    if (model) movement = new AstarStrategy(position, dest, model->getGraph());
   }
+}
 
-  if (position.dist(*d) < 5)
-    b_targetDestination = !b_targetDestination;
-  direction = (*d - position).unit();
-  position = position + direction * speed * dt;
+std::string Human::tocsv() const {
+  std::ostringstream stream;
+  stream << getId() << ',' << position.x << ',' << position.y << ','
+         << position.z << ',' << direction.x << ',' << direction.y << ','
+         << direction.z << ',' << getSpeed() << ','
+         << atKeller << ",";
+
+  return stream.str();
 }
